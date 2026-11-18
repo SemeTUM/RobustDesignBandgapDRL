@@ -21,7 +21,7 @@ def hidden_init(layer):
  
  
 class Actor(nn.Module):
-    def __init__(self, state_size, action_size, hidden_size=80):
+    def __init__(self, state_size, action_size, hidden_size=256):
         super(Actor, self).__init__()
  
         self.fc1 = nn.Linear(state_size, hidden_size)
@@ -76,7 +76,7 @@ class Actor(nn.Module):
  
  
 class Critic(nn.Module):
-    def __init__(self, state_size, action_size, hidden_size=80, seed=1):
+    def __init__(self, state_size, action_size, hidden_size=256, seed=1):
         super(Critic, self).__init__()
 
         self.seed = seed
@@ -108,7 +108,7 @@ class SAC(nn.Module):
         self.action_size = action_size
 
 
-        self.gamma = 0.99
+        self.gamma = 0.999
         self.tau = 1e-2
         hidden_size = 80
         learning_rate = 6e-4
@@ -167,7 +167,15 @@ class SAC(nn.Module):
         return actor_loss, log_action_pi
 
     
-    def learn(self, step, experiences, gamma, d=1):
+    def learn(self, step, experiences, gamma, d=1, weights=None, return_td_errors=False):
+        """One SAC update.
+
+        weights: optional [B,1] importance-sampling weights from PER. When None
+                 the critic loss is the plain MSE, so uniform-buffer scripts behave
+                 exactly as before.
+        return_td_errors: if True, also return per-sample |TD error| [B] (for
+                 PER priority updates) as a 6th return value.
+        """
         states, actions, rewards, next_states, dones = experiences
  
         # update critics 
@@ -183,8 +191,17 @@ class SAC(nn.Module):
         q1 = self.critic1(states).gather(1, actions.long())
         q2 = self.critic2(states).gather(1, actions.long())
  
-        critic1_loss = 0.5 * F.mse_loss(q1, Q_targets)
-        critic2_loss = 0.5 * F.mse_loss(q2, Q_targets)
+        td1 = Q_targets - q1
+        td2 = Q_targets - q2
+        if weights is None:
+            critic1_loss = 0.5 * (td1 ** 2).mean()
+            critic2_loss = 0.5 * (td2 ** 2).mean()
+        else:
+            # importance-sampling correction for the non-uniform PER sampling
+            critic1_loss = 0.5 * (weights * td1 ** 2).mean()
+            critic2_loss = 0.5 * (weights * td2 ** 2).mean()
+        # new priorities: mean absolute TD error of the two critics
+        td_errors = (0.5 * (td1.abs() + td2.abs())).detach().squeeze(-1)
  
         # critic 1
         self.critic1_optimizer.zero_grad()
@@ -216,6 +233,8 @@ class SAC(nn.Module):
         self.soft_update(self.critic1, self.critic1_target)
         self.soft_update(self.critic2, self.critic2_target)
  
+        if return_td_errors:
+            return actor_loss.item(), alpha_loss.item(), critic1_loss.item(), critic2_loss.item(), current_alpha, td_errors
         return actor_loss.item(), alpha_loss.item(), critic1_loss.item(), critic2_loss.item(), current_alpha
 
     @torch.no_grad()

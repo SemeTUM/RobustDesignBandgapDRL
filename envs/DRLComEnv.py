@@ -23,7 +23,7 @@ class VibEnv3D():
         model.param().set("kx", "if(k<1,k*pi/L1,if(k<2,pi/L1, (3-k)*pi/L1))");
         model.param().set("ky", "if(k<1,0,if(k<2,(k-1)*pi/L1, (3-k)*pi/L1))");
         model.param().set("k", "0");
-        model.param().set("L1", "0.042[m]");
+        model.param().set("L1", "0.04[m]");
         model.param().set("H", "0.0[m]");
         model.param().set("ra", "0.0[m]");
         

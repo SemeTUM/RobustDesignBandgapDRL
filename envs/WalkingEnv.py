@@ -130,3 +130,12 @@ def comsol_reward_function(env, env0):
     comsol_reward = reward0
 
     return comsol_reward , bandgap1
+    
+def comsol_reward_target_bng(env, env0, f_low, f_high):
+    path0 = env.conv2com()
+    #print(" ".join(path0))
+    bandgap = env0.comsolEnv(path0)
+    bandgap1, reward0 = env0.find_gap(f_low, f_high, bandgap)    
+    comsol_reward = reward0
+
+    return comsol_reward , bandgap1

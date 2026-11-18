@@ -14,7 +14,7 @@ class VibEnv3D():
     def __init__(self):
         self.action_space = spaces.Box(low=0.1, high=0.99, shape=(10,10))
     def comsolEnv(self,path1):
-        client= mph.start(cores=2)
+        client= mph.start(cores=4)
         model= client.create('Model')
         model.clear()
         model=model.java
@@ -40,32 +40,32 @@ class VibEnv3D():
         model.component("comp1").geom("geom1").feature("r1").set("size", ["3", "3"]);
         model.component("comp1").geom("geom1").feature("r1").set("pos", ["0", "0"]);
         model.component("comp1").geom("geom1").create("r2", "Rectangle");
-        model.component("comp1").geom("geom1").feature("r2").set("size", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("r2").set("size", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("r2").set("pos", ["0", "0"]);
         model.component("comp1").geom("geom1").create("arr1", "Array");
-        model.component("comp1").geom("geom1").feature("arr1").set("fullsize", ["15", "15"]);
-        model.component("comp1").geom("geom1").feature("arr1").set("displ", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("arr1").set("fullsize", ["20", "20"]);
+        model.component("comp1").geom("geom1").feature("arr1").set("displ", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("arr1").selection("input").set("r2");
         model.component("comp1").geom("geom1").create("r3", "Rectangle");
-        model.component("comp1").geom("geom1").feature("r3").set("size", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("r3").set("size", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("r3").set("pos", ["1.5", "0"]);
         model.component("comp1").geom("geom1").create("arr2", "Array");
-        model.component("comp1").geom("geom1").feature("arr2").set("fullsize", ["15", "15"]);
-        model.component("comp1").geom("geom1").feature("arr2").set("displ", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("arr2").set("fullsize", ["20", "20"]);
+        model.component("comp1").geom("geom1").feature("arr2").set("displ", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("arr2").selection("input").set("r3");
         model.component("comp1").geom("geom1").create("r4", "Rectangle");
-        model.component("comp1").geom("geom1").feature("r4").set("size", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("r4").set("size", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("r4").set("pos", ["0", "1.5"]);
         model.component("comp1").geom("geom1").create("arr3", "Array");
-        model.component("comp1").geom("geom1").feature("arr3").set("fullsize", ["15", "15"]);
-        model.component("comp1").geom("geom1").feature("arr3").set("displ", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("arr3").set("fullsize", ["20", "20"]);
+        model.component("comp1").geom("geom1").feature("arr3").set("displ", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("arr3").selection("input").set("r4");
         model.component("comp1").geom("geom1").create("r5", "Rectangle");
-        model.component("comp1").geom("geom1").feature("r5").set("size", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("r5").set("size", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("r5").set("pos", ["1.5", "1.5"]);
         model.component("comp1").geom("geom1").create("arr4", "Array");
-        model.component("comp1").geom("geom1").feature("arr4").set("fullsize", ["15", "15"]);
-        model.component("comp1").geom("geom1").feature("arr4").set("displ", ["0.1", "0.1"]);
+        model.component("comp1").geom("geom1").feature("arr4").set("fullsize", ["20", "20"]);
+        model.component("comp1").geom("geom1").feature("arr4").set("displ", ["0.075", "0.075"]);
         model.component("comp1").geom("geom1").feature("arr4").selection("input").set("r5");
         model.component("comp1").geom("geom1").create("dif1", "Difference");
         model.component("comp1").geom("geom1").feature("dif1").set("intbnd", "off");
