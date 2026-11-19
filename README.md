@@ -32,6 +32,61 @@ A discrete soft actor–critic (SAC) agent with prioritized experience replay (P
 
 Material parameters: soft nylon E = 0.38 GPa, ρ = 1410 kg/m³, ν = 0.35; steel E = 250 GPa, ρ = 7850 kg/m³, ν = 0.28.
 
+## Discrete SAC agent
+
+### Training procedure
+
+| Step | Note |
+|---|---|
+| Initialize actor $\pi_{\phi}(a \mid s)$ and critics $Q_{\theta_1}$, $Q_{\theta_2}$ | |
+| Initialize target critics $\bar{Q}_{\theta_1}$, $\bar{Q}_{\theta_2}$ | |
+| Initialize prioritized replay buffer $\mathcal{D} \leftarrow \emptyset$ | |
+| Initialize temperature $\alpha$ and target entropy $\mathcal{H}_{\mathrm{target}} = 0.98 \log \lvert A \rvert$ | |
+| **For each episode:** | |
+| &emsp;Reset environment, observe $s_0$ | Random start row, first column |
+| &emsp;**For each of the 500 steps:** | |
+| &emsp;&emsp;Sample $a_t \sim \pi_{\phi}(a_t \mid s_t)$ | Stochastic policy |
+| &emsp;&emsp;Execute $a_t$, observe $(s_{t+1}, r_{int}, d_t)$ | |
+| &emsp;&emsp;Store $(s_t, a_t, r_{int}, s_{t+1}, d_t)$ temporarily in $\mathcal{D}_0$ | |
+| &emsp;Compute final reward $r_{final}$ | COMSOL; $-20$ if the design is disconnected |
+| &emsp;Add $r_{final}$ to the last transition ($d_t = 1$) | Terminal reward |
+| &emsp;Store all transitions in $\mathcal{D}$ with maximum priority | |
+| &emsp;**Gradient step** (once per episode): | |
+| &emsp;&emsp;Sample minibatch $(s, a, r, s', d)$ with $P(i) \propto p_i$ and weights $w_i$ | PER sampling |
+| &emsp;&emsp;$y = r + \gamma (1-d) \sum_{a'} \pi_{\phi}(a' \mid s') \left(\min_i \bar{Q}_{\theta_i}(s',a') - \alpha \log \pi_{\phi}(a' \mid s')\right)$ | Target value |
+| &emsp;&emsp;$\mathcal{L}_{Q_i} = w \left(Q_{\theta_i}(s,a) - y\right)^2$ | Weighted critic loss |
+| &emsp;&emsp;$p = \left(\lvert \delta \rvert + \epsilon\right)^{\alpha_p}$ | Priority update |
+| &emsp;&emsp;$\mathcal{L}_{\pi} = \sum_{a} \pi_{\phi}(a \mid s) \left(\alpha \log \pi_{\phi}(a \mid s) - \min_i Q_{\theta_i}(s,a)\right)$ | Actor loss |
+| &emsp;&emsp;$\mathcal{L}_{\alpha} = -\log\alpha \sum_{a} \pi_{\phi}(a \mid s) \left(\log \pi_{\phi}(a \mid s) + \mathcal{H}_{\mathrm{target}}\right)$ | Entropy tuning |
+| &emsp;&emsp;$\bar{\theta}_i \leftarrow \tau \theta_i + (1-\tau)\bar{\theta}_i$ | Target network update |
+| **Output:** $\phi$, $\theta_1$, $\theta_2$ | Trained networks |
+
+### Architecture and training configuration
+
+| Component | Specification |
+|---|---|
+| State space (position $(r,c)$ and $20 \times 20$ occupancy grid) | 402 |
+| Action space (four neighbouring grid cells) | 4 |
+| Actor network | MLP (3 hidden layers, 80 neurons each) |
+| Hidden activation | ReLU |
+| Actor output | Softmax |
+| Critic network | MLP (3 hidden layers, 80 neurons each) |
+| Critic output | Linear |
+| Critic networks | 2 |
+| Target networks | 2 |
+| Optimizer (actor, critics, temperature) | Adam |
+| Learning rate | $6 \times 10^{-4}$ |
+| Discount factor | 0.99 |
+| Soft update rate ($\tau$) | $10^{-2}$ |
+| Batch size | 128 |
+| Gradient updates per episode | 1 |
+| Replay buffer size | $5 \times 10^{5}$ transitions |
+| PER parameters ($\alpha_p$, $\beta$, $\epsilon$) | 0.6, 0.4 → 1, $10^{-2}$ |
+| Exploration | Stochastic policy, automatic tuning of $\alpha$ |
+| Total episodes | 2000 (training), 500 (validation) |
+| Steps per episode | 500 |
+| Entropy target | $0.98 \log \lvert A \rvert$ |
+
 ## Requirements
 
 - COMSOL Multiphysics 6.3 with a valid licence
