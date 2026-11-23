@@ -111,8 +111,9 @@ def main():
             beta = PER_BETA_START + (PER_BETA_END - PER_BETA_START) * episode / (N_EPISODES - 1)
 #            for _ in range(UPDATES_PER_EPISODE):
             batch, is_weights, sample_idxs = replay_buffer.sample(beta=beta)
-            policy_loss, alpha_loss, bellmann_error1, bellmann_error2, current_alpha = agent.learn(
-                step, batch, gamma=0.99, weights=None, return_td_errors=False)
+            policy_loss, alpha_loss, bellmann_error1, bellmann_error2, current_alpha, td_errors = agent.learn(
+                step, batch, gamma=0.99, weights=is_weights, return_td_errors=True)
+            replay_buffer.update_priorities(sample_idxs, td_errors)
             print(f"Episode {episode+1}/{N_EPISODES}, Reward: {reward_to_store:.2f}, ploss: {policy_loss}, aloss:{alpha_loss}, berr1:{bellmann_error1}, berr2:{bellmann_error2}")
         print(f" {episode+1}/{N_EPISODES},EPReward: {reward_to_store:.2f}")
 

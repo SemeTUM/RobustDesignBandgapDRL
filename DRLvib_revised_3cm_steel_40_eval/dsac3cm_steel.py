@@ -52,11 +52,9 @@ def get_state(pos):
     return np.concatenate([pos, env.get_fundamental_grid().ravel()]).astype(np.float32)
 
 p_loss, a_loss, b_err1, b_err2, cur_alpha = [], [], [], [], []
-checkpoint = torch.load("../DRLvib_revised_4cm_wo_bias/SAC_DISCRETE_PER_WO_frame_agent_checkpoint_ep2000.pth", map_location= device)
+checkpoint = torch.load("../DRLvib_revised_4cm_with_PER/SAC_DISCRETE_PER_WO_frame_agent_checkpoint_ep2000.pth", map_location= device)
 def main():
     agent = SAC(STATE_DIM,  ACTION_DIM,   device=device)
-    replay_buffer = PER(state_size=STATE_DIM, buffer_size=BUFFER_SIZE, batch_size=BATCH_SIZE, device=device,
-                        eps=PER_EPS, alpha=PER_ALPHA, beta=PER_BETA_START)
 
     training_history = []
     total_steps = 0

@@ -137,11 +137,11 @@ def main():
                 'alpha_optimizer_state_dict': agent.alpha_optimizer.state_dict(),
 
             }
-            torch.save(checkpoint, f'SAC4cm_trainSteel_without_PER_checkpoint_ep{episode+1}.pth')
+            torch.save(checkpoint, f'SAC4cm_trainSteel_with_PER_checkpoint_ep{episode+1}.pth')
             print(f"Saved checkpoint at episode {episode+1}")
 
-    np.save('SAC4cm_steel_train_without_PER_history.npy', np.array(training_history, dtype=object), allow_pickle=True)
-    print("Training complete. History saved to SAC4cm_steel_train_without_PER_history.npy")
+    np.save('SAC4cm_steel_train_with_PER_history.npy', np.array(training_history, dtype=object), allow_pickle=True)
+    print("Training complete. History saved to SAC4cm_steel_train_with_PER_history.npy")
 
 if __name__ == "__main__":
     main()
