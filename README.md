@@ -30,7 +30,7 @@ A discrete soft actor–critic (SAC) agent with prioritized experience replay (P
 | `DRLvib_revised_3cm_steel_40_eval` | Pre-trained agent evaluated without retraining (500 episodes) | 3 cm, steel, 40 × 40 grid | `DRLComEnv3cm_steel_40.py` |
 | `DRLvib_revised_3cm_steel_trained` | Agent trained from scratch | 3 cm, steel, 40 × 40 grid | `DRLComEnv3cm_steel_40.py` |
 
-Material parameters: soft nylon E = 0.38 GPa, ρ = 1410 kg/m³, ν = 0.35; steel E = 250 GPa, ρ = 7850 kg/m³, ν = 0.28.
+Material parameters: soft nylon $`E = 0.38`$ GPa, $`\rho = 1410`$ kg/m³, $`\nu = 0.35`$; steel $`E = 250`$ GPa, $`\rho = 7850`$ kg/m³, $`\nu = 0.28`$.
 
 ## Discrete SAC agent
 
@@ -38,34 +38,34 @@ Material parameters: soft nylon E = 0.38 GPa, ρ = 1410 kg/m³, ν = 0.35; steel
 
 | Step | Note |
 |---|---|
-| Initialize actor $\pi_{\phi}(a \mid s)$ and critics $Q_{\theta_1}$, $Q_{\theta_2}$ | |
-| Initialize target critics $\bar{Q}_{\theta_1}$, $\bar{Q}_{\theta_2}$ | |
-| Initialize prioritized replay buffer $\mathcal{D} \leftarrow \emptyset$ | |
-| Initialize temperature $\alpha$ and target entropy $\mathcal{H}_{\mathrm{target}} = 0.98 \log \lvert A \rvert$ | |
+| Initialize actor $`\pi_{\phi}(a \mid s)`$ and critics $`Q_{\theta_1}`$, $`Q_{\theta_2}`$ | |
+| Initialize target critics $`\bar{Q}_{\theta_1}`$, $`\bar{Q}_{\theta_2}`$ | |
+| Initialize prioritized replay buffer $`\mathcal{D} \leftarrow \emptyset`$ | |
+| Initialize temperature $`\alpha`$ and target entropy $`\mathcal{H}_{\mathrm{target}} = 0.98 \log \lvert A \rvert`$ | |
 | **For each episode:** | |
-| &emsp;Reset environment, observe $s_0$ | Random start row, first column |
+| &emsp;Reset environment, observe $`s_0`$ | Random start row, first column |
 | &emsp;**For each of the 500 steps:** | |
-| &emsp;&emsp;Sample $a_t \sim \pi_{\phi}(a_t \mid s_t)$ | Stochastic policy |
-| &emsp;&emsp;Execute $a_t$, observe $(s_{t+1}, r_{int}, d_t)$ | |
-| &emsp;&emsp;Store $(s_t, a_t, r_{int}, s_{t+1}, d_t)$ temporarily in $\mathcal{D}_0$ | |
-| &emsp;Compute final reward $r_{final}$ | COMSOL; $-20$ if the design is disconnected |
-| &emsp;Add $r_{final}$ to the last transition ($d_t = 1$) | Terminal reward |
-| &emsp;Store all transitions in $\mathcal{D}$ with maximum priority | |
+| &emsp;&emsp;Sample $`a_t \sim \pi_{\phi}(a_t \mid s_t)`$ | Stochastic policy |
+| &emsp;&emsp;Execute $`a_t`$, observe $`(s_{t+1}, r_{\mathrm{int}}, d_t)`$ | |
+| &emsp;&emsp;Store $`(s_t, a_t, r_{\mathrm{int}}, s_{t+1}, d_t)`$ temporarily in $`\mathcal{D}_0`$ | |
+| &emsp;Compute final reward $`r_{\mathrm{final}}`$ | COMSOL; $`-20`$ if the design is disconnected |
+| &emsp;Add $`r_{\mathrm{final}}`$ to the last transition ($`d_t = 1`$) | Terminal reward |
+| &emsp;Store all transitions in $`\mathcal{D}`$ with maximum priority | |
 | &emsp;**Gradient step** (once per episode): | |
-| &emsp;&emsp;Sample minibatch $(s, a, r, s', d)$ with $P(i) \propto p_i$ and weights $w_i$ | PER sampling |
-| &emsp;&emsp;$y = r + \gamma (1-d) \sum_{a'} \pi_{\phi}(a' \mid s') \left(\min_i \bar{Q}_{\theta_i}(s',a') - \alpha \log \pi_{\phi}(a' \mid s')\right)$ | Target value |
-| &emsp;&emsp;$\mathcal{L}_{Q_i} = w \left(Q_{\theta_i}(s,a) - y\right)^2$ | Weighted critic loss |
-| &emsp;&emsp;$p = \left(\lvert \delta \rvert + \epsilon\right)^{\alpha_p}$ | Priority update |
-| &emsp;&emsp;$\mathcal{L}_{\pi} = \sum_{a} \pi_{\phi}(a \mid s) \left(\alpha \log \pi_{\phi}(a \mid s) - \min_i Q_{\theta_i}(s,a)\right)$ | Actor loss |
-| &emsp;&emsp;$\mathcal{L}_{\alpha} = -\log\alpha \sum_{a} \pi_{\phi}(a \mid s) \left(\log \pi_{\phi}(a \mid s) + \mathcal{H}_{\mathrm{target}}\right)$ | Entropy tuning |
-| &emsp;&emsp;$\bar{\theta}_i \leftarrow \tau \theta_i + (1-\tau)\bar{\theta}_i$ | Target network update |
-| **Output:** $\phi$, $\theta_1$, $\theta_2$ | Trained networks |
+| &emsp;&emsp;Sample minibatch $`(s, a, r, s', d)`$ with $`P(i) \propto p_i`$ and weights $`w_i`$ | PER sampling |
+| &emsp;&emsp;$`y = r + \gamma (1-d) \sum_{a'} \pi_{\phi}(a' \mid s') \left(\min_i \bar{Q}_{\theta_i}(s',a') - \alpha \log \pi_{\phi}(a' \mid s')\right)`$ | Target value |
+| &emsp;&emsp;$`\mathcal{L}_{Q_i} = w \left(Q_{\theta_i}(s,a) - y\right)^2`$ | Weighted critic loss |
+| &emsp;&emsp;$`p = \left(\lvert \delta \rvert + \epsilon\right)^{\alpha_p}`$ | Priority update |
+| &emsp;&emsp;$`\mathcal{L}_{\pi} = \sum_{a} \pi_{\phi}(a \mid s) \left(\alpha \log \pi_{\phi}(a \mid s) - \min_i Q_{\theta_i}(s,a)\right)`$ | Actor loss |
+| &emsp;&emsp;$`\mathcal{L}_{\alpha} = -\log\alpha \sum_{a} \pi_{\phi}(a \mid s) \left(\log \pi_{\phi}(a \mid s) + \mathcal{H}_{\mathrm{target}}\right)`$ | Entropy tuning |
+| &emsp;&emsp;$`\bar{\theta}_i \leftarrow \tau \theta_i + (1-\tau)\bar{\theta}_i`$ | Target network update |
+| **Output:** $`\phi`$, $`\theta_1`$, $`\theta_2`$ | Trained networks |
 
 ### Architecture and training configuration
 
 | Component | Specification |
 |---|---|
-| State space (position $(r,c)$ and $20 \times 20$ occupancy grid) | 402 |
+| State space (position $`(r,c)`$ and $`20 \times 20`$ occupancy grid) | 402 |
 | Action space (four neighbouring grid cells) | 4 |
 | Actor network | MLP (3 hidden layers, 80 neurons each) |
 | Hidden activation | ReLU |
@@ -75,21 +75,21 @@ Material parameters: soft nylon E = 0.38 GPa, ρ = 1410 kg/m³, ν = 0.35; steel
 | Critic networks | 2 |
 | Target networks | 2 |
 | Optimizer (actor, critics, temperature) | Adam |
-| Learning rate | $6 \times 10^{-4}$ |
+| Learning rate | $`6 \times 10^{-4}`$ |
 | Discount factor | 0.99 |
-| Soft update rate ($\tau$) | $10^{-2}$ |
+| Soft update rate ($`\tau`$) | $`10^{-2}`$ |
 | Batch size | 128 |
 | Gradient updates per episode | 1 |
-| Replay buffer size | $5 \times 10^{5}$ transitions |
-| PER parameters ($\alpha_p$, $\beta$, $\epsilon$) | 0.6, 0.4 → 1, $10^{-2}$ |
-| Exploration | Stochastic policy, automatic tuning of $\alpha$ |
+| Replay buffer size | $`5 \times 10^{5}`$ transitions |
+| PER parameters ($`\alpha_p`$, $`\beta`$, $`\epsilon`$) | 0.6, 0.4 → 1, $`10^{-2}`$ |
+| Exploration | Stochastic policy, automatic tuning of $`\alpha`$ |
 | Total episodes | 2000 (training), 500 (validation) |
 | Steps per episode | 500 |
-| Entropy target | $0.98 \log \lvert A \rvert$ |
+| Entropy target | $`0.98 \log \lvert A \rvert`$ |
 
 ## Requirements
 
-- COMSOL Multiphysics 6.3 with a valid licence
+- COMSOL Multiphysics 6.2/6.3 with a valid licence
 - Python 3 with `torch`, `numpy`, `scipy`, `matplotlib`, `gym`, and [`mph`](https://github.com/MPh-py/MPh) (Python interface to COMSOL)
 
 ## Running an experiment
@@ -103,13 +103,17 @@ bash run.sh
 
 The scripts add the repository root to the Python path (`sys.path.append("..")`), so they must be started from their own folder. Training scripts save a checkpoint every 100 episodes and the training history (`*.npy`) at the end. The evaluation scripts load the checkpoint of the reference agent from `DRLvib_revised_4cm_with_PER/`.
 
-Each history file is a list of episode dictionaries with the visited positions (`states`), the actions, the rewards, the final reward, and the dispersion bands (`bandgap`, 32 × 20 array: one duplicate row of k = 0 followed by 31 k-points × 20 bands).
+Each history file is a list of episode dictionaries with the visited positions (`states`), the actions, the rewards, the final reward, and the dispersion bands (`bandgap`, 32 × 20 array: one duplicate row of $`k = 0`$ followed by 31 $`k`$-points × 20 bands).
 
 ## Bandgap Cell Finder (web app)
 
 `webapp/bandgap_cell_finder.html` is a browser application that runs entirely client-side (no server, Python, or COMSOL needed). Open it in a browser or serve it with GitHub Pages.
 
-- **Verified designs:** ranks the COMSOL-simulated unit cells from one or more design libraries by how well their bandgaps cover a target frequency range. Library frequencies are rescaled to a chosen cell size and material, f = f₀ (a₀/a) √((E/ρ)/(E₀/ρ₀)); this is exact only between data with the same Poisson's ratio, so libraries are matched by ν.
+- **Verified designs:** ranks the COMSOL-simulated unit cells from one or more design libraries by how well their bandgaps cover a target frequency range. Library frequencies are rescaled to a chosen cell size and material,
+
+  $$f = f_0 \, \frac{a_0}{a} \sqrt{\frac{E/\rho}{E_0/\rho_0}},$$
+
+  where the subscript $`0`$ denotes the library (reference) values and $`a`$ is the cell size. This is exact only between data with the same Poisson's ratio, so libraries are matched by $`\nu`$.
 - **Generate with agent:** runs the trained actor in a JavaScript copy of the walking environment and generates unit cells without finite element analysis. Generated designs are checked for connectivity and must be verified in COMSOL.
 - **Inspector:** full p4m unit cell (optionally tiled 3 × 3), dispersion diagram with the matched bandgap and target range, and export of the geometry as a COMSOL selection list or CSV grid.
 
@@ -140,4 +144,3 @@ Run `python export_for_app.py -h` for all options (`--material nylon|steel`, `--
   note         = {GitHub repository}
 }
 ```
-
